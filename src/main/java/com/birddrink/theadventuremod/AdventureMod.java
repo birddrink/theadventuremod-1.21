@@ -1,5 +1,9 @@
 package com.birddrink.theadventuremod;
 
+import com.birddrink.theadventuremod.item.ModItems;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.neoforge.common.NeoForge;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -17,8 +21,7 @@ import net.neoforged.neoforge.event.server.ServerStartingEvent;
 
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
 @Mod(AdventureMod.MOD_ID)
-public class AdventureMod
-{
+public class AdventureMod {
     // Define mod id in a common place for everything to reference
     public static final String MOD_ID = "theadventuremod";
     // Directly reference a slf4j logger
@@ -28,7 +31,14 @@ public class AdventureMod
     // FML will recognize some parameter types like IEventBus or ModContainer and pass them in automatically.
     public AdventureMod(IEventBus modEventBus, ModContainer modContainer)
     {
+        modEventBus.addListener(this::commonSetup);
 
+        NeoForge.EVENT_BUS.register(this);
+
+        ModItems.register(modEventBus);
+
+        modEventBus.addListener(this::addCreative);
+        modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event)
@@ -39,7 +49,11 @@ public class AdventureMod
     // Add the example block item to the building blocks tab
     private void addCreative(BuildCreativeModeTabContentsEvent event)
     {
-
+        if(event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
+            event.accept(ModItems.BLUE_AMETHYST_SHARD);
+            event.accept(ModItems.SILVER_COIN);
+            event.accept(ModItems.GOLD_COIN);
+        }
     }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call
